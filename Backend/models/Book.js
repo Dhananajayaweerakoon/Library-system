@@ -30,6 +30,10 @@ const bookSchema = new mongoose.Schema({
     returnDate: {
         type: Date,
         default: null
+    },
+    pages: {
+        type: Number,
+        required: true
     }
 }, {
     timestamps: true

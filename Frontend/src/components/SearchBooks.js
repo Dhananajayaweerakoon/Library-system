@@ -60,6 +60,9 @@ function SearchBooks() {
                   ISBN: {book.isbn}
                 </Typography>
                 <Typography color="textSecondary">
+                  Pages: {book.pages}
+                </Typography>
+                <Typography color="textSecondary">
                   Status: {book.status}
                 </Typography>
                 {book.status === 'borrowed' && (

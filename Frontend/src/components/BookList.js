@@ -108,6 +108,22 @@ function BookList() {
     });
   };
 
+  const handleRemove = async (bookId) => {
+    if (!window.confirm('Are you sure you want to remove this book?')) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/books/${bookId}`);
+      fetchBooks();
+    } catch (error) {
+      alert('Error removing book.');
+      console.error('Error removing book:', error);
+    }
+  };
+
+  const handleUpdate = (book) => {
+    // Placeholder for update logic (e.g., open a dialog or navigate to update page)
+    alert('Update feature coming soon!');
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Box component="form" onSubmit={handleSearch} sx={{ mb: 4 }}>
@@ -143,6 +159,9 @@ function BookList() {
                   ISBN: {book.isbn}
                 </Typography>
                 <Typography color="textSecondary">
+                  Pages: {book.pages}
+                </Typography>
+                <Typography color="textSecondary">
                   Status: {book.status}
                 </Typography>
                 {book.status === 'borrowed' && (
@@ -159,9 +178,25 @@ function BookList() {
                   variant="contained"
                   color={book.status === 'available' ? 'primary' : 'secondary'}
                   onClick={() => book.status === 'available' ? handleBorrow(book) : handleReturn(book._id)}
-                  sx={{ mt: 2 }}
+                  sx={{ mt: 2, mr: 1 }}
                 >
                   {book.status === 'available' ? 'Borrow' : 'Return'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => handleRemove(book._id)}
+                  sx={{ mt: 2, mr: 1 }}
+                >
+                  Remove
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => handleUpdate(book)}
+                  sx={{ mt: 2 }}
+                >
+                  Update
                 </Button>
               </CardContent>
             </Card>

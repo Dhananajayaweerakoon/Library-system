@@ -34,13 +34,17 @@ router.post('/', async (req, res) => {
     const book = new Book({
         title: req.body.title,
         author: req.body.author,
-        isbn: req.body.isbn
+        isbn: req.body.isbn,
+        pages: req.body.pages
     });
 
     try {
         const newBook = await book.save();
         res.status(201).json(newBook);
     } catch (err) {
+        if (err.code === 11000 && err.keyPattern && err.keyPattern.isbn) {
+            return res.status(400).json({ message: 'ISBN already exists. Please use a unique ISBN.' });
+        }
         res.status(400).json({ message: err.message });
     }
 });

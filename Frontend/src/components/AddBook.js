@@ -15,6 +15,7 @@ function AddBook() {
     title: '',
     author: '',
     isbn: '',
+    pages: ''
   });
   const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -30,6 +31,7 @@ function AddBook() {
       title: '',
       author: '',
       isbn: '',
+      pages: ''
     });
   };
 
@@ -44,7 +46,15 @@ function AddBook() {
         setMessage({ type: '', text: '' });
       }, 3000);
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error adding book. Please try again.' });
+      let errorMsg = 'Error adding book. Please try again.';
+      if (error.response && error.response.data && error.response.data.message) {
+        if (error.response.data.message.includes('ISBN already exists')) {
+          errorMsg = 'A book with this ISBN already exists.';
+        } else {
+          errorMsg = error.response.data.message;
+        }
+      }
+      setMessage({ type: 'error', text: errorMsg });
       console.error('Error adding book:', error);
     }
   };
@@ -87,6 +97,17 @@ function AddBook() {
             onChange={handleChange}
             margin="normal"
             required
+          />
+          <TextField
+            fullWidth
+            label="Pages"
+            name="pages"
+            type="number"
+            value={formData.pages}
+            onChange={handleChange}
+            margin="normal"
+            required
+            inputProps={{ min: 1 }}
           />
           <Button
             type="submit"
