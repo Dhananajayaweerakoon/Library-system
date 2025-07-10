@@ -12,6 +12,7 @@ import {
   DialogActions,
   TextField,
   Box,
+  MenuItem
 } from '@mui/material';
 import axios from 'axios';
 
@@ -24,6 +25,8 @@ function BookList() {
     studentNumber: ''
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [updateBookData, setUpdateBookData] = useState({});
 
   useEffect(() => {
     fetchBooks();
@@ -120,8 +123,36 @@ function BookList() {
   };
 
   const handleUpdate = (book) => {
-    // Placeholder for update logic (e.g., open a dialog or navigate to update page)
-    alert('Update feature coming soon!');
+    setSelectedBook(book);
+    setUpdateBookData({ ...book });
+    setOpenUpdateDialog(true);
+  };
+
+  const handleUpdateBookChange = (e) => {
+    setUpdateBookData({
+      ...updateBookData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleUpdateBookSubmit = async () => {
+    try {
+      // Format date fields as ISO strings or null
+      const formattedData = {
+        ...updateBookData,
+        borrowedDate: updateBookData.borrowedDate ? new Date(updateBookData.borrowedDate).toISOString() : null,
+        returnDate: updateBookData.returnDate ? new Date(updateBookData.returnDate).toISOString() : null
+      };
+      console.log('Updating book with ID:', selectedBook._id);
+      console.log('Update data:', formattedData);
+      await axios.patch(`http://localhost:5000/api/books/${selectedBook._id}`, formattedData);
+      setOpenUpdateDialog(false);
+      setSelectedBook(null);
+      fetchBooks();
+    } catch (error) {
+      alert('Error updating book.');
+      console.error('Error updating book:', error);
+    }
   };
 
   return (
@@ -236,6 +267,89 @@ function BookList() {
           >
             Borrow
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openUpdateDialog} onClose={() => setOpenUpdateDialog(false)}>
+        <DialogTitle>Update Book</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Title"
+            name="title"
+            fullWidth
+            value={updateBookData.title || ''}
+            onChange={handleUpdateBookChange}
+          />
+          <TextField
+            margin="dense"
+            label="Author"
+            name="author"
+            fullWidth
+            value={updateBookData.author || ''}
+            onChange={handleUpdateBookChange}
+          />
+          <TextField
+            margin="dense"
+            label="ISBN"
+            name="isbn"
+            fullWidth
+            value={updateBookData.isbn || ''}
+            onChange={handleUpdateBookChange}
+          />
+          <TextField
+            margin="dense"
+            label="Pages"
+            name="pages"
+            type="number"
+            fullWidth
+            value={updateBookData.pages || ''}
+            onChange={handleUpdateBookChange}
+          />
+          <TextField
+            margin="dense"
+            label="Status"
+            name="status"
+            select
+            fullWidth
+            value={updateBookData.status || ''}
+            onChange={handleUpdateBookChange}
+          >
+            <MenuItem value="available">Available</MenuItem>
+            <MenuItem value="borrowed">Borrowed</MenuItem>
+          </TextField>
+          <TextField
+            margin="dense"
+            label="Borrowed By"
+            name="borrowedBy"
+            fullWidth
+            value={updateBookData.borrowedBy || ''}
+            onChange={handleUpdateBookChange}
+          />
+          <TextField
+            margin="dense"
+            label="Borrowed Date"
+            name="borrowedDate"
+            type="datetime-local"
+            fullWidth
+            value={updateBookData.borrowedDate ? new Date(updateBookData.borrowedDate).toISOString().slice(0,16) : ''}
+            onChange={handleUpdateBookChange}
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            margin="dense"
+            label="Return Date"
+            name="returnDate"
+            type="datetime-local"
+            fullWidth
+            value={updateBookData.returnDate ? new Date(updateBookData.returnDate).toISOString().slice(0,16) : ''}
+            onChange={handleUpdateBookChange}
+            InputLabelProps={{ shrink: true }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenUpdateDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateBookSubmit} color="primary">Update</Button>
         </DialogActions>
       </Dialog>
     </Container>

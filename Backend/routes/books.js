@@ -92,6 +92,34 @@ router.patch('/:id/return', async (req, res) => {
     }
 });
 
+// Update book details
+router.patch('/:id', async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.id);
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+
+        // Update fields if provided in request body
+        if (req.body.title !== undefined) book.title = req.body.title;
+        if (req.body.author !== undefined) book.author = req.body.author;
+        if (req.body.isbn !== undefined) book.isbn = req.body.isbn;
+        if (req.body.pages !== undefined) book.pages = req.body.pages;
+        if (req.body.status !== undefined) book.status = req.body.status;
+        if (req.body.borrowedBy !== undefined) book.borrowedBy = req.body.borrowedBy;
+        if (req.body.borrowedDate !== undefined) book.borrowedDate = req.body.borrowedDate;
+        if (req.body.returnDate !== undefined) book.returnDate = req.body.returnDate;
+
+        const updatedBook = await book.save();
+        res.json(updatedBook);
+    } catch (err) {
+        if (err.code === 11000 && err.keyPattern && err.keyPattern.isbn) {
+            return res.status(400).json({ message: 'ISBN already exists. Please use a unique ISBN.' });
+        }
+        res.status(400).json({ message: err.message });
+    }
+});
+
 // Delete a book
 router.delete('/:id', async (req, res) => {
     try {
